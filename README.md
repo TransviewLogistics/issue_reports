@@ -1,13 +1,8 @@
+# Issue Reports Gem
+
 Gem used to create tickets on ZenDesk from Issue Reports.
 
 # Usage
-
-## Define the following environment variables
-
-- ZENDESK_URL
-- ZENDESK_USERNAME
-- ZENDESK_TOKEN
-- ZENDESK_TICKET_URL_PREFIX
 
 ## Installation and config
 

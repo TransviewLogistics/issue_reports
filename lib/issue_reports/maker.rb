@@ -6,16 +6,26 @@ module IssueReports
 
     def create_issue!
       file_name = "#{SecureRandom.uuid}/issue.png"
+
       create_s3_object(file_name)
+
       issue_body = issue_body(file_name)
-      ticket = zendesk_client.tickets.create(subject: ticket_details[:issue_title], comment: { value: issue_body }, tags: ticket_details[:labels], external_id: ticket_external_id)
+
+      ticket = zendesk_client.tickets.create(
+        subject: ticket_details[:issue_title],
+        comment: { value: issue_body },
+        tags: ticket_details[:labels],
+        external_id: ticket_external_id,
+      )
 
       unless ticket
-        raise "Error while trying to create zendesk ticket."
+        raise "Error while trying to create ZenDesk ticket."
       end
 
-      "#{ENV['ZENDESK_TICKET_URL_PREFIX']}/#{ticket.id}"
+      "#{zendesk_details[:ticket_url_prefix]}/#{ticket.id}"
     end
+
+    private
 
     def create_s3_object(file_name)
       s3 = Aws::S3::Client.new
@@ -62,8 +72,6 @@ module IssueReports
       "![Issue](https://s3-#{s3_details[:region]}.amazonaws.com/#{s3_details[:bucket]}/#{screenshot_url})"
     end
 
-    private
-
     def current_git_hash
       @current_git_hash ||= Rails.application.config.issue_reports_current_git_hash
     end
@@ -80,11 +88,15 @@ module IssueReports
       @s3_details ||= Rails.application.config.issue_reports_config_options[:s3_details]
     end
 
+    def zendesk_details
+      @zendesk_details ||= Rails.application.config.issue_reports_config_options[:zendesk_details]
+    end
+
     def zendesk_client
       ZendeskAPI::Client.new do |config|
-        config.url = ENV["ZENDESK_URL"]
-        config.username = ENV["ZENDESK_USERNAME"]
-        config.access_token = ENV["ZENDESK_TOKEN"]
+        config.url = zendesk_details[:url]
+        config.username = zendesk_details[:username]
+        config.access_token = zendesk_details[:token]
       end
     end
   end
