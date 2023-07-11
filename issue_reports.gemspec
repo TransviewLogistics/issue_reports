@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.authors = ["HeadLight Solutions"]
   s.email = "support@headlightsolutions.com"
   s.files = Dir.glob("**/*.rb")
-  s.homepage = "https://rubygems.org/gems/issue_reports"
+  s.homepage = "https://rubygems.org/gems/issue-reports"
   s.license = "MIT"
   s.add_runtime_dependency "rails", ">= 4.2"
   s.add_dependency "aws-sdk-core"
