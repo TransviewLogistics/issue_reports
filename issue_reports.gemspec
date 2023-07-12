@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "issue-reports"
-  s.version = "0.3.1"
+  s.version = "1.0.0"
   s.summary = ""
   s.description = ""
   s.authors = ["HeadLight Solutions"]
