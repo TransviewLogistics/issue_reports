@@ -1,4 +1,4 @@
 #!/bin/sh
-rm $(find . -type f -name 'issue-reports-*.gem')
+rm $(find . -type f -name 'issue_reports-*.gem')
 gem build
-gem push $(find . -type f -name 'issue-reports-*.gem' | sort | tail -n1)
+gem push $(find . -type f -name 'issue_reports-*.gem' | sort | tail -n1)
