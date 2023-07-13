@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name = "zenhub_rails_s3_ticket_maker"
+  s.name = "zendesk_rails_s3_ticket_maker"
   s.version = "1.0.0"
   s.summary = ""
   s.description = ""
