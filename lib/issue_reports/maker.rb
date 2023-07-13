@@ -93,7 +93,7 @@ module IssueReports
     end
 
     def zendesk_client
-      ZendeskAPI::Client.new do |config|
+      @zendesk_client || = ZendeskAPI::Client.new do |config|
         config.url = zendesk_details[:url]
         config.username = zendesk_details[:username]
         config.access_token = zendesk_details[:token]
