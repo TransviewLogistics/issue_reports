@@ -1,12 +1,12 @@
 Gem::Specification.new do |s|
-  s.name = "issue_reports"
+  s.name = "zenhub_rails_s3_ticket_maker"
   s.version = "1.0.0"
   s.summary = ""
   s.description = ""
   s.authors = ["HeadLight Solutions"]
   s.email = "contact@headlightsolutions.com"
   s.files = Dir.glob("**/*.rb")
-  s.homepage = "https://rubygems.org/gems/issue_reports"
+  s.homepage = "https://github.com/TransviewLogistics/issue_reports"
   s.license = "MIT"
   s.add_runtime_dependency "rails", ">= 4.2"
   s.add_dependency "aws-sdk-core"

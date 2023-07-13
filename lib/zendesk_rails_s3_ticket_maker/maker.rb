@@ -1,28 +1,36 @@
-module IssueReports
+module ZendeskRailsS3TicketMaker
   module Maker
     require "aws-sdk-core"
     require "aws-sdk-s3"
     require "zendesk_api"
 
-    def create_issue!
+    def create_zendesk_ticket
       file_name = "#{SecureRandom.uuid}/issue.png"
 
       create_s3_object(file_name)
 
       issue_body = issue_body(file_name)
 
-      ticket = zendesk_client.tickets.create(
-        subject: ticket_details[:issue_title],
-        comment: { value: issue_body },
-        tags: ticket_details[:labels],
-        external_id: ticket_external_id,
-      )
+      ticket = nil
+      error = nil
 
-      unless ticket
-        raise "Error while trying to create ZenDesk ticket."
+      begin
+        ticket = zendesk_client.tickets.create!(
+          subject: ticket_details[:issue_title],
+          comment: { value: issue_body },
+          tags: ticket_details[:labels],
+          external_id: ticket_external_id,
+        )
+      rescue ZendeskAPI::Error => e
+        error = "ZendeskAPI::Error while trying to create ZenDesk ticket. Error: #{e.message}"
+      rescue StandardError => e
+        error = "Unexpected error while trying to create ZenDesk ticket. Error: #{e.message}"
       end
 
-      "#{zendesk_details[:ticket_url_prefix]}/#{ticket.id}"
+      {
+        error: error,
+        url: error ? nil : "#{zendesk_details[:ticket_url_prefix]}/#{ticket.id}"
+      }
     end
 
     private
@@ -73,27 +81,27 @@ module IssueReports
     end
 
     def current_git_hash
-      @current_git_hash ||= Rails.application.config.issue_reports_current_git_hash
+      @current_git_hash ||= Rails.application.config.zendesk_rails_s3_ticket_maker_current_git_hash
     end
 
     def instance_details
-      @instance_details ||= Rails.application.config.issue_reports_config_options[:instance_details]
+      @instance_details ||= Rails.application.config.zendesk_rails_s3_ticket_maker_config_options[:instance_details]
     end
 
     def ticket_details
-      @ticket_details ||= Rails.application.config.issue_reports_config_options[:ticket_details]
+      @ticket_details ||= Rails.application.config.zendesk_rails_s3_ticket_maker_config_options[:ticket_details]
     end
 
     def s3_details
-      @s3_details ||= Rails.application.config.issue_reports_config_options[:s3_details]
+      @s3_details ||= Rails.application.config.zendesk_rails_s3_ticket_maker_config_options[:s3_details]
     end
 
     def zendesk_details
-      @zendesk_details ||= Rails.application.config.issue_reports_config_options[:zendesk_details]
+      @zendesk_details ||= Rails.application.config.zendesk_rails_s3_ticket_maker_config_options[:zendesk_details]
     end
 
     def zendesk_client
-      @zendesk_client || = ZendeskAPI::Client.new do |config|
+      @zendesk_client ||= ZendeskAPI::Client.new do |config|
         config.url = zendesk_details[:url]
         config.username = zendesk_details[:username]
         config.access_token = zendesk_details[:token]
