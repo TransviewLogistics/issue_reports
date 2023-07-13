@@ -30,7 +30,7 @@ test:
   ticket_details:
     repo: "test_repo"
     labels: [ "user_issue" ]
-    issue_title: "Found a bug in BuildMyLoads"
+    issue_title: "Found a bug in MyProject"
   s3_details:
     bucket: "test-bucket"
     region: "test-region"
