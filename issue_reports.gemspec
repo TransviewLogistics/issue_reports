@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.summary = ""
   s.description = ""
   s.authors = ["HeadLight Solutions"]
-  s.email = "support@headlightsolutions.com"
+  s.email = "contact@headlightsolutions.com"
   s.files = Dir.glob("**/*.rb")
   s.homepage = "https://rubygems.org/gems/issue_reports"
   s.license = "MIT"
