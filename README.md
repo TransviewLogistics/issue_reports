@@ -1,6 +1,6 @@
 # Issue Reports Gem
 
-Gem used to create tickets on ZenDesk from Issue Reports.
+Gem used to create tickets on ZenDesk from issue reports in a ruby on rails project. Uses S3 to upload a png for screenshots.
 
 # Usage
 
