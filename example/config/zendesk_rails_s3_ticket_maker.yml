@@ -1,0 +1,36 @@
+development:
+  instance_details:
+    description_column: :description
+    user_method: :user
+    screenshot_column: :screenshot
+    url_column: :url
+  zendesk_details:
+    url: "https://yourdomain.zendesk.com/api/v2"
+    ticket_url_prefix: "https://yourdomain.zendesk.com/agent/tickets"
+    username: "example@test.com"
+    token: "test-token"
+  ticket_details:
+    repo: "test_repo"
+    labels: ["user_issue"]
+    issue_title: "Found a bug in MyProject"
+  s3_details:
+    bucket: "test-bucket"
+    region: "test-region"
+test:
+  instance_details:
+    description_column: :description
+    user_method: :user
+    screenshot_column: :screenshot
+    url_column: :url
+  zendesk_details:
+    url: "https://yourdomain.zendesk.com/api/v2"
+    ticket_url_prefix: "https://yourdomain.zendesk.com/agent/tickets"
+    username: "example@test.com"
+    token: "test-token"
+  ticket_details:
+    repo: "test_repo"
+    labels: [ "user_issue" ]
+    issue_title: "Found a bug in MyProject"
+  s3_details:
+    bucket: "test-bucket"
+    region: "test-region"
