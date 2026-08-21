@@ -21,7 +21,7 @@ module ZendeskRailsS3TicketMaker
           tags: ticket_details[:labels],
           external_id: ticket_external_id,
         )
-      rescue ZendeskAPI::Error => e
+      rescue ZendeskAPI::Error::ClientError => e
         error = "ZendeskAPI::Error while trying to create ZenDesk ticket. Error: #{e.message}"
       rescue StandardError => e
         error = "Unexpected error while trying to create ZenDesk ticket. Error: #{e.message}"

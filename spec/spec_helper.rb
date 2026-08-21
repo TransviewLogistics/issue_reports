@@ -1,0 +1,5 @@
+require "base64"
+require "securerandom"
+require "ostruct"
+require "active_support/all"
+require "zendesk_rails_s3_ticket_maker/maker"
