@@ -12,40 +12,37 @@ Include the maker in the issue-report model:
 
 ```ruby
 class IssueReport < ApplicationRecord
-  include GithubIssueMaker::Maker
+  include GithubIssueMaker
 end
 ```
 
 ## Configuration
 
-Configure the required GitHub and S3 values explicitly in an initializer. This example loads them from [`config/github_issue_maker.yml`](./example/config/github_issue_maker.yml):
+Define the original `github_issue_maker` configuration constant:
 
 ```ruby
-settings = Rails.application.config_for(:github_issue_maker)
-
-GithubIssueMaker.configure do |config|
-  config.access_token = settings.fetch(:access_token)
-  config.repository = settings.fetch(:repository)
-  config.issue_title = settings.fetch(:issue_title)
-  config.labels = settings.fetch(:labels)
-  config.s3_bucket = settings.fetch(:s3_bucket)
-  config.s3_region = settings.fetch(:s3_region)
-end
+GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG = {
+  instance_details: {
+    description_column: :description,
+    git_hash_column: :git_hash,
+    screenshot_column: :screenshot,
+    url_column: :url,
+    user_method: :user
+  },
+  github_details: {
+    access_token: "github-token",
+    user: "owner",
+    repo: "repository",
+    labels: ["user_issue"],
+    issue_title: "Found a bug"
+  },
+  s3_details: {
+    bucket: "issue-screenshots",
+    region: "us-east-1"
+  }
+}
 ```
 
-`repository` must use the `owner/repository` format. The access token must be able to create issues in that repository.
-
-By default, the model interface is `description`, `user`, `git_hash`, `screenshot`, and `url`. Override a method name when a model differs:
-
-```ruby
-GithubIssueMaker.configure do |config|
-  # Required settings omitted for brevity.
-  config.description_method = :report_text
-  config.user_method = :reporter
-  config.git_hash_method = :revision
-  config.screenshot_method = :image_data
-  config.url_method = :page_url
-end
-```
+The `user` and `repo` values identify the GitHub repository. The access token must be able to create issues in it. See [`config/github_issue_maker.yml`](./example/config/github_issue_maker.yml) for an environment-based example.
 
 Call `create_github_issue!` on the model. It returns the new issue's HTML URL and raises `GithubIssueMaker::Error` if GitHub rejects the request.

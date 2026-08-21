@@ -11,13 +11,16 @@ module GithubIssueMaker
   class Error < StandardError; end
 
   class << self
-    attr_reader :configuration
+    def included(base)
+      base.include(Maker)
+    end
 
-    def configure
+    def configuration
+      return unless const_defined?(:GITHUB_ISSUE_MAKER_CONFIG, false)
+
       configuration = Configuration.new
-      yield configuration
+      configuration.apply_options(const_get(:GITHUB_ISSUE_MAKER_CONFIG))
       configuration.validate!
-      @configuration = configuration
     end
   end
 end

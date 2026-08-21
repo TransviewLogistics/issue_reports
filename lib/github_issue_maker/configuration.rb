@@ -14,6 +14,26 @@ module GithubIssueMaker
       @url_method = :url
     end
 
+    def apply_options(options)
+      instance_details = option_group(options, :instance_details)
+      github_details = option_group(options, :github_details)
+      s3_details = option_group(options, :s3_details)
+
+      self.description_method = option(instance_details, :description_column) || description_method
+      self.user_method = option(instance_details, :user_method) || user_method
+      self.git_hash_method = option(instance_details, :git_hash_column) || git_hash_method
+      self.screenshot_method = option(instance_details, :screenshot_column) || screenshot_method
+      self.url_method = option(instance_details, :url_column) || url_method
+
+      self.access_token = option(github_details, :access_token)
+      self.repository = repository_from(github_details)
+      self.issue_title = option(github_details, :issue_title)
+      self.labels = option(github_details, :labels)
+      self.s3_bucket = option(s3_details, :bucket)
+      self.s3_region = option(s3_details, :region)
+      self
+    end
+
     def validate!
       missing = REQUIRED_SETTINGS.select { |setting| blank?(public_send(setting)) }
       unless missing.empty?
@@ -28,6 +48,23 @@ module GithubIssueMaker
     end
 
     private
+
+    def option_group(options, name)
+      option(options, name) || {}
+    end
+
+    def option(options, name)
+      options[name] || options[name.to_s]
+    end
+
+    def repository_from(github_details)
+      repository = option(github_details, :repository)
+      return repository if repository
+
+      user = option(github_details, :user)
+      repo = option(github_details, :repo)
+      "#{user}/#{repo}" if user && repo
+    end
 
     def blank?(value)
       value.nil? || (value.respond_to?(:empty?) && value.empty?)

@@ -1,20 +1,48 @@
 require "spec_helper"
 
 RSpec.describe GithubIssueMaker do
-  describe ".configure" do
+  let(:config_options) do
+    {
+      instance_details: {
+        description_column: :description,
+        git_hash_column: :git_hash,
+        screenshot_column: :screenshot,
+        url_column: :url,
+        user_method: :user
+      },
+      github_details: {
+        access_token: "github-token",
+        user: "owner",
+        repo: "repo",
+        labels: ["user_issue"],
+        issue_title: "Found a bug"
+      },
+      s3_details: {
+        bucket: "issue-screenshots",
+        region: "us-east-1"
+      }
+    }
+  end
+
+  describe ".configuration" do
     it "raises a clear error when required settings are missing" do
-      expect do
-        described_class.configure do |config|
-          config.access_token = "token"
-        end
-      end.to raise_error(ArgumentError, /repository, issue_title, labels, s3_bucket, s3_region/)
+      stub_const("GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG", github_details: { access_token: "token" })
+
+      expect { described_class.configuration }
+        .to raise_error(ArgumentError, /repository, issue_title, labels, s3_bucket, s3_region/)
+    end
+
+    it "loads the original configuration constant" do
+      stub_const("GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG", config_options)
+
+      expect(described_class.configuration.repository).to eq("owner/repo")
     end
   end
 
   describe GithubIssueMaker::Maker do
     let(:model_class) do
       Class.new do
-        include GithubIssueMaker::Maker
+        include GithubIssueMaker
 
         attr_accessor :description, :user, :git_hash, :screenshot, :url
       end
@@ -35,14 +63,7 @@ RSpec.describe GithubIssueMaker do
     end
 
     before do
-      GithubIssueMaker.configure do |config|
-        config.access_token = "github-token"
-        config.repository = "owner/repo"
-        config.issue_title = "Found a bug"
-        config.labels = ["user_issue"]
-        config.s3_bucket = "issue-screenshots"
-        config.s3_region = "us-east-1"
-      end
+      stub_const("GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG", config_options)
 
       allow(SecureRandom).to receive(:hex).and_return("screenshot-key")
       allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
