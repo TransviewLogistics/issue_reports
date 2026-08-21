@@ -1,0 +1,15 @@
+development:
+  access_token: "github-token"
+  repository: "owner/repository"
+  issue_title: "Found a bug"
+  labels: ["user_issue"]
+  s3_bucket: "issue-screenshots"
+  s3_region: "us-east-1"
+
+test:
+  access_token: "test-token"
+  repository: "owner/repository"
+  issue_title: "Found a bug"
+  labels: ["user_issue"]
+  s3_bucket: "test-issue-screenshots"
+  s3_region: "us-east-1"

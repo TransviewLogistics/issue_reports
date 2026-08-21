@@ -1,16 +1,51 @@
 # Issue Reports Gem
 
-Gem used to create tickets on ZenDesk from issue reports in a ruby on rails project. Uses S3 to upload a png for screenshots.
+Creates a GitHub issue from an issue-report model and uploads its PNG screenshot to S3. It calls GitHub's REST API directly, so it has no GitHub client dependency.
 
-# Usage
+## Installation
 
-## Installation and config
+```ruby
+gem "github_issue_maker", git: "https://github.com/TransviewLogistics/issue_reports"
+```
 
-Add `gem "zendesk_rails_s3_ticket_maker", git: "https://github.com/TransviewLogistics/issue_reports"` to the Gemfile and run `bundle install`
+Include the maker in the issue-report model:
 
-Include the `ZendeskRailsS3TicketMaker::Maker module inside your IssueReport model`
+```ruby
+class IssueReport < ApplicationRecord
+  include GithubIssueMaker::Maker
+end
+```
 
-Add your own `zendesk_rails_s3_ticket_maker.yml` config to `#{Rails.root}/config/zendesk_rails_s3_ticket_maker.yml}` [as in this example](./example/config/zendesk_rails_s3_ticket_maker.yml). You can use whatever environments you wish to use as the root level keys.
-For the methods and columns, specify your own symbol that reflects your IssueReport model and schema.
+## Configuration
 
-You are all set!
+Configure the required GitHub and S3 values explicitly in an initializer. This example loads them from [`config/github_issue_maker.yml`](./example/config/github_issue_maker.yml):
+
+```ruby
+settings = Rails.application.config_for(:github_issue_maker)
+
+GithubIssueMaker.configure do |config|
+  config.access_token = settings.fetch(:access_token)
+  config.repository = settings.fetch(:repository)
+  config.issue_title = settings.fetch(:issue_title)
+  config.labels = settings.fetch(:labels)
+  config.s3_bucket = settings.fetch(:s3_bucket)
+  config.s3_region = settings.fetch(:s3_region)
+end
+```
+
+`repository` must use the `owner/repository` format. The access token must be able to create issues in that repository.
+
+By default, the model interface is `description`, `user`, `git_hash`, `screenshot`, and `url`. Override a method name when a model differs:
+
+```ruby
+GithubIssueMaker.configure do |config|
+  # Required settings omitted for brevity.
+  config.description_method = :report_text
+  config.user_method = :reporter
+  config.git_hash_method = :revision
+  config.screenshot_method = :image_data
+  config.url_method = :page_url
+end
+```
+
+Call `create_github_issue!` on the model. It returns the new issue's HTML URL and raises `GithubIssueMaker::Error` if GitHub rejects the request.
