@@ -69,7 +69,7 @@ RSpec.describe GithubIssueMaker do
       allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
     end
 
-    it "uploads the screenshot, creates a GitHub issue, and returns its URL" do
+    it "uploads the screenshot, creates a GitHub issue, and returns the result" do
       expect(s3_client).to receive(:put_object).with(
         bucket: "issue-screenshots",
         acl: "public-read",
@@ -107,16 +107,39 @@ RSpec.describe GithubIssueMaker do
         }
       ).and_return(github_response)
 
-      expect(issue_report.create_github_issue!).to eq("https://github.com/owner/repo/issues/123")
+      expect(issue_report.create_github_issue).to eq(
+        error: nil,
+        url: "https://github.com/owner/repo/issues/123"
+      )
     end
 
-    it "raises a useful error when GitHub rejects the issue" do
+    it "returns a useful error when GitHub rejects the issue" do
       allow(s3_client).to receive(:put_object)
       response = instance_double(Net::HTTPResponse, code: "422", body: '{"message":"Validation Failed"}')
       allow(Net::HTTP).to receive(:post).and_return(response)
 
-      expect { issue_report.create_github_issue! }
-        .to raise_error(GithubIssueMaker::Error, /GitHub issue creation failed \(422\): Validation Failed/)
+      expect(issue_report.create_github_issue).to eq(
+        error: "GitHub issue creation failed (422): Validation Failed",
+        url: nil
+      )
+    end
+
+    it "returns unexpected errors instead of raising them" do
+      allow(s3_client).to receive(:put_object).and_raise(StandardError, "S3 is unavailable")
+
+      expect(issue_report.create_github_issue).to eq(
+        error: "Unexpected error while trying to create GitHub issue. Error: S3 is unavailable",
+        url: nil
+      )
+    end
+
+    it "returns an error when the gem is not configured" do
+      hide_const("GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG")
+
+      expect(issue_report.create_github_issue).to eq(
+        error: "GithubIssueMaker has not been configured",
+        url: nil
+      )
     end
   end
 end

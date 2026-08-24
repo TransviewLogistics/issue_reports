@@ -18,31 +18,15 @@ end
 
 ## Configuration
 
-Define the original `github_issue_maker` configuration constant:
+The gem does not load a configuration file automatically. Define the settings in [`config/github_issue_maker.yml`](./example/config/github_issue_maker.yml), then load them into the original configuration constant from an initializer:
 
 ```ruby
-GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG = {
-  instance_details: {
-    description_column: :description,
-    git_hash_column: :git_hash,
-    screenshot_column: :screenshot,
-    url_column: :url,
-    user_method: :user
-  },
-  github_details: {
-    access_token: "github-token",
-    user: "owner",
-    repo: "repository",
-    labels: ["user_issue"],
-    issue_title: "Found a bug"
-  },
-  s3_details: {
-    bucket: "issue-screenshots",
-    region: "us-east-1"
-  }
-}
+GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG =
+  Rails.application.config_for(:github_issue_maker)
+
+Rails.application.config.current_git_hash = `git rev-parse HEAD`.chomp
 ```
 
-The `user` and `repo` values identify the GitHub repository. The access token must be able to create issues in it. See [`config/github_issue_maker.yml`](./example/config/github_issue_maker.yml) for an environment-based example.
+The git hash setting is application configuration and is separate from the gem configuration. The `user` and `repo` values identify the GitHub repository. The access token must be able to create issues in it.
 
-Call `create_github_issue!` on the model. It returns the new issue's HTML URL and raises `GithubIssueMaker::Error` if GitHub rejects the request.
+Call `create_github_issue` on the model. It returns `{ error: nil, url: "..." }` on success and `{ error: "...", url: nil }` if the issue cannot be created.

@@ -1,21 +1,32 @@
 module GithubIssueMaker
   module Maker
-    def create_github_issue!
+    def create_github_issue
       config = GithubIssueMaker.configuration
-      raise Error, "GithubIssueMaker has not been configured" unless config
+      return failure_result("GithubIssueMaker has not been configured") unless config
 
       screenshot_key = "#{SecureRandom.hex}/issue.png"
       upload_screenshot(screenshot_key, config)
       response = create_issue(screenshot_key, config)
 
       unless response.code.to_i.between?(200, 299)
-        raise Error, "GitHub issue creation failed (#{response.code}): #{github_error_message(response.body)}"
+        return failure_result(
+          "GitHub issue creation failed (#{response.code}): #{github_error_message(response.body)}"
+        )
       end
 
-      JSON.parse(response.body).fetch("html_url")
+      {
+        error: nil,
+        url: JSON.parse(response.body).fetch("html_url")
+      }
+    rescue StandardError => e
+      failure_result("Unexpected error while trying to create GitHub issue. Error: #{e.message}")
     end
 
     private
+
+    def failure_result(error)
+      { error: error, url: nil }
+    end
 
     def upload_screenshot(screenshot_key, config)
       screenshot = public_send(config.screenshot_method)

@@ -3,15 +3,15 @@ module GithubIssueMaker
     REQUIRED_SETTINGS = %i[access_token repository issue_title labels s3_bucket s3_region].freeze
     REPOSITORY_PATTERN = %r{\A[^/\s]+/[^/\s]+\z}
 
-    attr_accessor(*REQUIRED_SETTINGS)
-    attr_accessor :description_method, :user_method, :git_hash_method, :screenshot_method, :url_method
+    attr_reader(*REQUIRED_SETTINGS)
+    attr_reader :description_method, :user_method, :git_hash_method, :screenshot_method, :url_method
 
     def initialize
-      @description_method = :description
-      @user_method = :user
-      @git_hash_method = :git_hash
-      @screenshot_method = :screenshot
-      @url_method = :url
+      self.description_method = :description
+      self.user_method = :user
+      self.git_hash_method = :git_hash
+      self.screenshot_method = :screenshot
+      self.url_method = :url
     end
 
     def apply_options(options)
@@ -19,11 +19,11 @@ module GithubIssueMaker
       github_details = option_group(options, :github_details)
       s3_details = option_group(options, :s3_details)
 
-      self.description_method = option(instance_details, :description_column) || description_method
-      self.user_method = option(instance_details, :user_method) || user_method
-      self.git_hash_method = option(instance_details, :git_hash_column) || git_hash_method
-      self.screenshot_method = option(instance_details, :screenshot_column) || screenshot_method
-      self.url_method = option(instance_details, :url_column) || url_method
+      self.description_method = option(instance_details, :description_column) || self.description_method
+      self.user_method = option(instance_details, :user_method) || self.user_method
+      self.git_hash_method = option(instance_details, :git_hash_column) || self.git_hash_method
+      self.screenshot_method = option(instance_details, :screenshot_column) || self.screenshot_method
+      self.url_method = option(instance_details, :url_column) || self.url_method
 
       self.access_token = option(github_details, :access_token)
       self.repository = repository_from(github_details)
@@ -40,7 +40,7 @@ module GithubIssueMaker
         raise ArgumentError, "Missing GithubIssueMaker configuration: #{missing.join(", ")}"
       end
 
-      unless repository.match?(REPOSITORY_PATTERN)
+      unless self.repository.match?(REPOSITORY_PATTERN)
         raise ArgumentError, "GithubIssueMaker repository must use the owner/repository format"
       end
 
@@ -48,6 +48,9 @@ module GithubIssueMaker
     end
 
     private
+
+    attr_writer(*REQUIRED_SETTINGS)
+    attr_writer :description_method, :user_method, :git_hash_method, :screenshot_method, :url_method
 
     def option_group(options, name)
       option(options, name) || {}
