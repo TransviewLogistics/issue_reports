@@ -1,0 +1,33 @@
+development:
+  instance_details:
+    description_column: "description"
+    git_hash_column: "git_hash"
+    screenshot_column: "screenshot"
+    url_column: "url"
+    user_method: "user"
+  github_details:
+    access_token: "github-token"
+    user: "owner"
+    repo: "repository"
+    issue_title: "Found a bug"
+    labels: ["user_issue"]
+  s3_details:
+    bucket: "issue-screenshots"
+    region: "us-east-1"
+
+test:
+  instance_details:
+    description_column: "description"
+    git_hash_column: "git_hash"
+    screenshot_column: "screenshot"
+    url_column: "url"
+    user_method: "user"
+  github_details:
+    access_token: "test-token"
+    user: "owner"
+    repo: "repository"
+    issue_title: "Found a bug"
+    labels: ["user_issue"]
+  s3_details:
+    bucket: "test-issue-screenshots"
+    region: "us-east-1"

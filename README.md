@@ -1,16 +1,32 @@
 # Issue Reports Gem
 
-Gem used to create tickets on ZenDesk from issue reports in a ruby on rails project. Uses S3 to upload a png for screenshots.
+Creates a GitHub issue from an issue-report model and uploads its PNG screenshot to S3. It calls GitHub's REST API directly, so it has no GitHub client dependency.
 
-# Usage
+## Installation
 
-## Installation and config
+```ruby
+gem "github_issue_maker", git: "https://github.com/TransviewLogistics/issue_reports"
+```
 
-Add `gem "zendesk_rails_s3_ticket_maker", git: "https://github.com/TransviewLogistics/issue_reports"` to the Gemfile and run `bundle install`
+Include the maker in the issue-report model:
 
-Include the `ZendeskRailsS3TicketMaker::Maker module inside your IssueReport model`
+```ruby
+class IssueReport < ApplicationRecord
+  include GithubIssueMaker::Maker
+end
+```
 
-Add your own `zendesk_rails_s3_ticket_maker.yml` config to `#{Rails.root}/config/zendesk_rails_s3_ticket_maker.yml}` [as in this example](./example/config/zendesk_rails_s3_ticket_maker.yml). You can use whatever environments you wish to use as the root level keys.
-For the methods and columns, specify your own symbol that reflects your IssueReport model and schema.
+## Configuration
 
-You are all set!
+The gem does not load a configuration file automatically. Define the settings in [`config/github_issue_maker.yml`](./example/config/github_issue_maker.yml), then load them into the original configuration constant from an initializer:
+
+```ruby
+GithubIssueMaker::GITHUB_ISSUE_MAKER_CONFIG =
+  Rails.application.config_for(:github_issue_maker)
+
+Rails.application.config.current_git_hash = `git rev-parse HEAD`.chomp
+```
+
+The git hash setting is application configuration and is separate from the gem configuration. The `user` and `repo` values identify the GitHub repository. The access token must be able to create issues in it.
+
+Call `create_github_issue` on the model. It returns `{ error: nil, url: "..." }` on success and `{ error: "...", url: nil }` if the issue cannot be created.
