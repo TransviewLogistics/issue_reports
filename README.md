@@ -12,7 +12,7 @@ Include the maker in the issue-report model:
 
 ```ruby
 class IssueReport < ApplicationRecord
-  include GithubIssueMaker
+  include GithubIssueMaker::Maker
 end
 ```
 
