@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir["lib/**/*.rb"]
   spec.homepage = "https://github.com/TransviewLogistics/issue_reports"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.4"
 
   spec.add_dependency "aws-sdk-s3"
   spec.add_dependency "rexml"
